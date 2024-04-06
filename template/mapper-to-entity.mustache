@@ -1,0 +1,162 @@
+/* eslint-disable simple-import-sort/imports */
+/* eslint-disable prettier/prettier */
+/* eslint-disable import/order */
+/* eslint-disable simple-import-sort/exports */
+/* eslint-disable spaced-comment */
+/* eslint-disable import/no-cycle */
+/*
+ * !!!! This is an automatically generated file, do not change it. !!!!
+*/
+
+import { {{name}}{{#primaryKeyExists}}, {{name}}PK{{/primaryKeyExists}} } from '../models/{{name}}';
+{{#associations}}{{#isParent}}
+import { {{name}}ToEntityMapper, {{name}}ToDtoMapper } from './{{name}}'; 
+{{/isParent}}{{/associations}}
+{{#isMoment}}
+import Moment from 'moment'; 
+{{/isMoment}}
+import { Mapper } from '{{packageName}}';
+{{#hasAssociationsIsParent}}
+import { tokens } from '../tokens';
+{{/hasAssociationsIsParent}}
+import { injectable{{#hasAssociationsIsParent}}, inject{{/hasAssociationsIsParent}} } from 'inversify';
+
+@injectable()
+export class {{name}}ToEntityMapper implements Mapper<[unknown], {{name}}> {
+    {{#hasAssociationsIsParent}}
+
+    constructor({{#associations}}{{#isParent}}
+        @inject(tokens.{{name}}ToEntityMapper) private readonly {{fieldName}}ToEntityMapper: {{name}}ToEntityMapper,{{/isParent}}{{/associations}}
+    ) {}
+
+    {{/hasAssociationsIsParent}}
+    public map(v: unknown): {{name}} {
+        if (typeof v !== 'object') throw new Error(`Значение некорректно для преобразования в {{name}}`);
+        if (v === null) throw new Error(`Значение некорректно для преобразования в {{name}}`);
+
+        const entity: Partial<{{name}}> = {};
+
+    {{#properties}}
+        {{^isMoment}}
+        if ('{{expose}}' in v && v.{{expose}} !== undefined && v.{{expose}} !== null && typeof v.{{expose}} === '{{type}}') entity.{{name}} = v.{{expose}};
+        {{/isMoment}}
+        {{#isMoment}}
+        if ('{{expose}}' in v && v.{{expose}} !== undefined && v.{{expose}} !== null && typeof v.{{expose}} === 'string') {
+            const regExp = new RegExp('^\/Date\\((.*?)\\)\/$');
+            const match = v.{{expose}}.match(regExp);
+            if (match) {
+                entity.{{name}} = Moment(+match[1]);
+            }
+        };
+        {{/isMoment}}
+    {{/properties}}
+    {{#associations}}
+    {{#isParent}}
+    {{#isArray}}
+
+        if ('{{joinField}}' in v && typeof v.{{joinField}} === 'object' && v.{{joinField}} !== null && 'results' in v.{{joinField}} && Array.isArray(v.{{joinField}}.results)) {
+            entity.{{fieldName}} = v.{{joinField}}.results.map(el => this.{{fieldName}}ToEntityMapper.map(el));
+        } else {
+            entity.{{fieldName}} = [];
+        }
+    {{/isArray}}
+    {{^isArray}}
+    
+        if ('{{joinField}}' in v && typeof v.{{joinField}} === 'object' && v.{{joinField}} !== null && 'results' in v.{{joinField}} && typeof v.{{joinField}}.results === 'object' && v.{{joinField}}.results !== null) {
+            entity.{{fieldName}} = v.{{joinField}}.results.map(el => this.{{fieldName}}ToEntityMapper.map(el));
+        }
+    {{/isArray}}
+    {{/isParent}}
+    {{/associations}}
+
+        return entity as {{name}};
+    }
+}
+
+@injectable()
+export class {{name}}ToDtoMapper implements Mapper<[{{name}}], object> {
+    {{#hasAssociationsIsParent}}
+
+    constructor({{#associations}}{{#isParent}}
+        @inject(tokens.{{name}}ToDtoMapper) private readonly {{fieldName}}ToDtoMapper: {{name}}ToDtoMapper,{{/isParent}}{{/associations}}
+    ) {}
+
+    {{/hasAssociationsIsParent}}
+    public map(v: {{name}}): object {
+        if (typeof v !== 'object') throw new Error(`Значение некорректно для преобразования в {{name}}`);
+        if (v === null) throw new Error(`Значение некорректно для преобразования в {{name}}`);
+
+        const entity = {};
+
+    {{#properties}}
+        {{^isMoment}}
+        if ('{{name}}' in v && v.{{name}} !== undefined && v.{{name}} !== null && typeof v.{{name}} === '{{type}}') Reflect.set(entity, '{{expose}}', v.{{name}});
+        {{/isMoment}}
+        {{#isMoment}}
+        if ('{{name}}' in v && v.{{name}} !== undefined && v.{{name}} !== null && Moment.isMoment(v.{{name}})) Reflect.set(entity, '{{expose}}', `/Date(${v.{{name}}.valueOf()})/`);
+        {{/isMoment}}
+    {{/properties}}
+    {{#associations}}
+    {{#isParent}}
+    {{#isArray}}
+
+        if (v.{{fieldName}} && Array.isArray(v.{{fieldName}})) {
+            const results = v.{{fieldName}}.map(el => this.{{fieldName}}ToDtoMapper.map(el));
+            Reflect.set(entity, '{{joinField}}', { results });
+        }
+    {{/isArray}}
+    {{^isArray}}
+        if (v.{{fieldName}}) {
+            Reflect.set(entity, '{{joinField}}', { results: this.{{fieldName}}ToDtoMapper.map(v.{{fieldName}}) });
+        }
+    {{/isArray}}
+    {{/isParent}}
+    {{/associations}}
+
+        return entity;
+    }
+}
+{{#primaryKeyExists}}
+
+@injectable()
+export class {{name}}PKMapper implements Mapper<[{{name}} | {{name}}PK], unknown> {
+    public map(v: {{name}} | {{name}}PK): unknown {
+        if (v === null || v === undefined) throw new Error(`Значение некорректно для преобразования в {{name}}`);
+        {{#isMultiplePrimaryKey}}
+        if (typeof v !== 'object') throw new Error(`Значение некорректно для преобразования в {{name}}`);
+
+        return {
+        {{#primaryKeys}}
+            {{#isString}}
+            {{expose}}: `${v.{{name}}}`,
+            {{/isString}}
+            {{^isString}}
+            {{expose}}: +v.{{name}},
+            {{/isString}}
+        {{/primaryKeys}}
+        };
+        {{/isMultiplePrimaryKey}}
+        {{^isMultiplePrimaryKey}}
+
+        if (typeof v === 'object') {
+        {{#primaryKeys}}
+            {{#isString}}
+            return { {{expose}}: `${v.{{name}}}` };
+            {{/isString}}
+            {{^isString}}
+            return { {{expose}}: +v.{{name}} };
+            {{/isString}}
+        {{/primaryKeys}}
+        }
+    {{#primaryKeys}}
+        {{#isString}}
+        return `${v}`;
+        {{/isString}}
+        {{^isString}}
+        return +v;
+        {{/isString}}
+    {{/primaryKeys}}
+        {{/isMultiplePrimaryKey}}
+    }
+}
+{{/primaryKeyExists}}

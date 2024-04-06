@@ -1,0 +1,40 @@
+/* eslint-disable simple-import-sort/imports */
+/* eslint-disable prettier/prettier */
+/* eslint-disable import/order */
+/* eslint-disable simple-import-sort/exports */
+/* eslint-disable spaced-comment */
+/* eslint-disable import/no-cycle */
+/*
+ * !!!! This is an automatically generated file, do not change it. !!!!
+*/
+
+{{#imports}}
+import { {{entries}} } from '{{ & from }}';
+{{/imports}}
+
+{{#primaryKeyExists}}
+/** 
+ * @description Уникальный идентификатор сущности, однозначный поиск по сочетанию полей.
+ * @export @interface
+ */
+export type {{name}}PK = {
+    {{#primaryKeys}}
+    {{name}}: {{type}};
+    {{/primaryKeys}}
+}{{^isMultiplePrimaryKey}} | {{#primaryKeys}}{{type}}{{/primaryKeys}}{{/isMultiplePrimaryKey}};
+{{/primaryKeyExists}}
+
+/** 
+ * @description {{label}}  
+ * @export @interface
+ */
+export interface {{name}} {    
+{{#properties}}
+    /** @description {{label}} {{#isPrimary}}- [primary key] {{/isPrimary}} */
+    {{name}}{{^required}}?{{/required}}: {{type}};
+{{/properties}}
+{{#associations}}
+    /** @description Для присоединения нужно использовать {@link https://www.odata.org/getting-started/basic-tutorial/#expand expand} */
+    {{fieldName}}{{^isArray}}{{/isArray}}: {{name}}{{#isArray}}[]{{/isArray}};
+{{/associations}}
+}

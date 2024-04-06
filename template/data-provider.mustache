@@ -1,0 +1,31 @@
+/* eslint-disable simple-import-sort/imports */
+/* eslint-disable prettier/prettier */
+/* eslint-disable import/order */
+/* eslint-disable simple-import-sort/exports */
+/* eslint-disable spaced-comment */
+/* eslint-disable import/no-cycle */
+/*
+ * !!!! This is an automatically generated file, do not change it. !!!!
+*/
+
+import { AxiosInstance } from 'axios';
+import { CommonDataProvider, Mapper } from '{{packageName}}';
+import { {{entity.name}}, {{entity.name}}PK } from '../models/{{entity.name}}';
+import { inject, injectable } from 'inversify';
+import { tokens } from '../tokens';
+
+@injectable()
+export class {{entity.name}}DataProvider extends CommonDataProvider<{{entity.name}}, {{entity.name}}PK> {
+    constructor(
+        @inject('http') protected http: AxiosInstance,
+        @inject(tokens.{{entity.name}}ToEntityMapper) protected toEntityMapper: Mapper<[unknown], {{entity.name}}>,
+        @inject(tokens.{{entity.name}}ToDtoMapper) protected toDtoMapper: Mapper<[{{entity.name}}], object>,
+        @inject(tokens.{{entity.name}}PkMapper) protected pkMapper: Mapper<[{{entity.name}} | {{entity.name}}PK], unknown>,
+    ) {
+        super(http, toEntityMapper, toDtoMapper, pkMapper);
+    }
+
+    protected override getServiceName() {
+        return '{{name}}';
+    }
+}
